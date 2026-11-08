@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchPokemonList, type PokemonListItem } from './services/pokeApi'
+import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
 import './App.css'
 
 type PokemonListState =
@@ -18,7 +18,7 @@ function App() {
       setState({ status: 'loading' })
 
       try {
-        const pokemon = await fetchPokemonList(controller.signal)
+        const pokemon = await fetchTopPokemon(controller.signal)
         setState({ status: 'success', pokemon })
       } catch (error) {
         if (controller.signal.aborted) {
@@ -43,14 +43,19 @@ function App() {
     <main className="app-shell" dir="rtl">
       <header className="page-header">
         <p className="eyebrow">PokeIsrael</p>
-        <h1>הפוקידקס שלי</h1>
-        <p className="intro">רשימת הפוקימונים הראשונה שלך, ישירות מ-PokeAPI.</p>
+        <h1>50 הפוקימונים עם הסטאטים הגבוהים ביותר</h1>
+        <p className="intro">
+          מוצגים הפוקימונים הסופיים בכל קו התפתחות, כולל צורות המגה החזקות ביותר.
+        </p>
       </header>
 
       {state.status === 'loading' && (
         <section className="state-panel" aria-live="polite">
           <span className="spinner" aria-hidden="true" />
-          <p>טוען פוקימונים...</p>
+          <p>מחשב את דירוג הפוקימונים...</p>
+          <p className="loading-note">
+            בטעינה הראשונה נבדקים נתוני ההתפתחויות והסטאטים מ-PokeAPI.
+          </p>
         </section>
       )}
 
@@ -67,13 +72,21 @@ function App() {
       {state.status === 'success' && (
         <section className="results" aria-labelledby="results-title">
           <div className="results-heading">
-            <h2 id="results-title">רשימת פוקימונים</h2>
+            <h2 id="results-title">המובילים לפי סכום סטאטים בסיסיים</h2>
             <span>{state.pokemon.length} פוקימונים</span>
           </div>
           {state.pokemon.length > 0 ? (
             <ul className="pokemon-list">
               {state.pokemon.map((pokemon) => (
-                <li key={pokemon.id}>{pokemon.name}</li>
+                <li key={pokemon.id}>
+                  <span>{pokemon.name}</span>
+                  <strong
+                    className="stat-total"
+                    aria-label={`סכום סטאטים בסיסיים: ${pokemon.baseStatTotal}`}
+                  >
+                    {pokemon.baseStatTotal}
+                  </strong>
+                </li>
               ))}
             </ul>
           ) : (
