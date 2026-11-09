@@ -7,6 +7,7 @@ import { filterPokemonByName } from './utils/pokemon'
 import ComparisonPage from './ComparisonPage'
 import FavoritesPage from './FavoritesPage'
 import PokemonDetailPage from './PokemonDetailPage'
+import NotFoundPage from './NotFoundPage'
 import './App.css'
 
 type PokemonListState =
@@ -190,19 +191,6 @@ function PokemonListPage() {
           )}
         </section>
       )}
-    </main>
-  )
-}
-
-function NotFoundPage() {
-  return (
-    <main className="app-shell" dir="rtl">
-      <section className="state-panel">
-        <h1>העמוד לא נמצא</h1>
-        <Link className="pokemon-link" to="/">
-          חזרה לרשימת הפוקימונים
-        </Link>
-      </section>
     </main>
   )
 }
