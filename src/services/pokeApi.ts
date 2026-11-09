@@ -31,6 +31,23 @@ interface PokemonApiResponse {
   stats: { base_stat: number }[]
 }
 
+interface PokemonDetailsApiResponse {
+  id: number
+  name: string
+  base_experience: number | null
+  height: number
+  weight: number
+  types: { slot: number; type: ApiResource }[]
+  abilities: { ability: ApiResource; is_hidden: boolean; slot: number }[]
+  stats: { base_stat: number; effort: number; stat: ApiResource }[]
+  moves: { move: ApiResource }[]
+}
+
+interface MoveApiResponse {
+  name: string
+  power: number | null
+}
+
 interface PokemonSpeciesApiResponse {
   name: string
   varieties: { is_default: boolean; pokemon: ApiResource }[]
@@ -50,6 +67,24 @@ export interface PokemonListItem {
   name: string
   imageUrl: string
   baseStatTotal: number
+}
+
+export interface PokemonDetails {
+  id: number
+  name: string
+  imageUrl: string
+  baseExperience: number | null
+  height: number
+  weight: number
+  types: string[]
+  abilities: { name: string; isHidden: boolean }[]
+  stats: { name: string; baseStat: number; effort: number }[]
+  moves: { name: string; url: string }[]
+}
+
+export interface PokemonMoveDetails {
+  name: string
+  power: number
 }
 
 interface RankingCache {
@@ -140,6 +175,55 @@ function isPokemonApiResponse(value: unknown): value is PokemonApiResponse {
         isRecord(stat) &&
         isNonNegativeSafeInteger(stat.base_stat),
     )
+  )
+}
+
+function isPokemonDetailsApiResponse(
+  value: unknown,
+): value is PokemonDetailsApiResponse {
+  return (
+    isRecord(value) &&
+    isPositiveSafeInteger(value.id) &&
+    typeof value.name === 'string' &&
+    (value.base_experience === null ||
+      isNonNegativeSafeInteger(value.base_experience)) &&
+    isNonNegativeSafeInteger(value.height) &&
+    isNonNegativeSafeInteger(value.weight) &&
+    Array.isArray(value.types) &&
+    value.types.every(
+      (entry) =>
+        isRecord(entry) &&
+        isPositiveSafeInteger(entry.slot) &&
+        isApiResource(entry.type),
+    ) &&
+    Array.isArray(value.abilities) &&
+    value.abilities.every(
+      (entry) =>
+        isRecord(entry) &&
+        isApiResource(entry.ability) &&
+        typeof entry.is_hidden === 'boolean' &&
+        isPositiveSafeInteger(entry.slot),
+    ) &&
+    Array.isArray(value.stats) &&
+    value.stats.every(
+      (entry) =>
+        isRecord(entry) &&
+        isNonNegativeSafeInteger(entry.base_stat) &&
+        isNonNegativeSafeInteger(entry.effort) &&
+        isApiResource(entry.stat),
+    ) &&
+    Array.isArray(value.moves) &&
+    value.moves.every(
+      (entry) => isRecord(entry) && isApiResource(entry.move),
+    )
+  )
+}
+
+function isMoveApiResponse(value: unknown): value is MoveApiResponse {
+  return (
+    isRecord(value) &&
+    typeof value.name === 'string' &&
+    (value.power === null || isNonNegativeSafeInteger(value.power))
   )
 }
 
@@ -338,6 +422,49 @@ function writeCachedRanking(pokemon: PokemonListItem[]): void {
   } catch (error) {
     console.warn('לא ניתן לשמור את מטמון דירוג הפוקימונים.', error)
   }
+}
+
+export async function fetchPokemonDetails(
+  name: string,
+  signal: AbortSignal,
+): Promise<PokemonDetails> {
+  const pokemon = await fetchApiData(
+    `https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(name)}`,
+    isPokemonDetailsApiResponse,
+    signal,
+  )
+
+  return {
+    id: pokemon.id,
+    name: pokemon.name,
+    imageUrl: `${OFFICIAL_ARTWORK_URL}/${pokemon.id}.png`,
+    baseExperience: pokemon.base_experience,
+    height: pokemon.height,
+    weight: pokemon.weight,
+    types: pokemon.types.map(({ type }) => type.name),
+    abilities: pokemon.abilities.map(({ ability, is_hidden }) => ({
+      name: ability.name,
+      isHidden: is_hidden,
+    })),
+    stats: pokemon.stats.map(({ stat, base_stat, effort }) => ({
+      name: stat.name,
+      baseStat: base_stat,
+      effort,
+    })),
+    moves: pokemon.moves.map(({ move }) => ({
+      name: move.name,
+      url: move.url,
+    })),
+  }
+}
+
+export async function fetchPokemonMoveDetails(
+  url: string,
+  signal: AbortSignal,
+): Promise<PokemonMoveDetails | null> {
+  const move = await fetchApiData(url, isMoveApiResponse, signal)
+
+  return move.power === null ? null : { name: move.name, power: move.power }
 }
 
 export async function fetchTopPokemon(

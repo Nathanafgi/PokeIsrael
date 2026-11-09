@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link, Route, Routes } from 'react-router-dom'
 import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
+import PokemonDetailPage from './PokemonDetailPage'
 import './App.css'
 
 type PokemonListState =
@@ -7,7 +9,7 @@ type PokemonListState =
   | { status: 'error'; message: string }
   | { status: 'success'; pokemon: PokemonListItem[] }
 
-function App() {
+function PokemonListPage() {
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<PokemonListState>({ status: 'loading' })
 
@@ -79,7 +81,12 @@ function App() {
             <ul className="pokemon-list">
               {state.pokemon.map((pokemon) => (
                 <li key={pokemon.id}>
-                  <span>{pokemon.name}</span>
+                  <Link
+                    className="pokemon-link"
+                    to={`/pokemon/${encodeURIComponent(pokemon.name)}`}
+                  >
+                    {pokemon.name}
+                  </Link>
                   <strong
                     className="stat-total"
                     aria-label={`סכום סטאטים בסיסיים: ${pokemon.baseStatTotal}`}
@@ -95,6 +102,29 @@ function App() {
         </section>
       )}
     </main>
+  )
+}
+
+function NotFoundPage() {
+  return (
+    <main className="app-shell" dir="rtl">
+      <section className="state-panel">
+        <h1>העמוד לא נמצא</h1>
+        <Link className="pokemon-link" to="/">
+          חזרה לרשימת הפוקימונים
+        </Link>
+      </section>
+    </main>
+  )
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<PokemonListPage />} />
+      <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
   )
 }
 

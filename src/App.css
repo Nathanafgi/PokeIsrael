@@ -140,6 +140,16 @@
   text-transform: capitalize;
 }
 
+.pokemon-link {
+  color: #34312c;
+  text-decoration-color: #c98267;
+  text-underline-offset: 0.2em;
+}
+
+.pokemon-link:hover {
+  color: #963b20;
+}
+
 .stat-total {
   min-width: 3rem;
   border-radius: 999px;
