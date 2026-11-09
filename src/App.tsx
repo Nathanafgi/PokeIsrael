@@ -14,6 +14,7 @@ type PokemonListState =
 function PokemonListPage() {
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<PokemonListState>({ status: 'loading' })
+  const [searchQuery, setSearchQuery] = useState('')
   const { isFavorite, toggleFavorite } = useFavorites()
 
   useEffect(() => {
@@ -43,6 +44,15 @@ function PokemonListPage() {
     void loadPokemon()
     return () => controller.abort()
   }, [attempt])
+
+  const visiblePokemon =
+    state.status === 'success'
+      ? state.pokemon.filter((pokemon) =>
+          pokemon.name
+            .toLocaleLowerCase()
+            .includes(searchQuery.trim().toLocaleLowerCase()),
+        )
+      : []
 
   return (
     <main className="app-shell" dir="rtl">
@@ -78,36 +88,61 @@ function PokemonListPage() {
         <section className="results" aria-labelledby="results-title">
           <div className="results-heading">
             <h2 id="results-title">המובילים לפי סכום סטאטים בסיסיים</h2>
-            <span>{state.pokemon.length} פוקימונים</span>
+            <span>
+              {visiblePokemon.length} מתוך {state.pokemon.length} פוקימונים
+            </span>
           </div>
-          {state.pokemon.length > 0 ? (
+          <label className="search-field" htmlFor="pokemon-search">
+            חיפוש לפי שם
+            <input
+              id="pokemon-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="לדוגמה, pikachu"
+            />
+          </label>
+          {visiblePokemon.length > 0 ? (
             <ul className="pokemon-list">
-              {state.pokemon.map((pokemon) => (
+              {visiblePokemon.map((pokemon) => (
                 <li key={pokemon.id}>
-                  <Link
-                    className="pokemon-link"
-                    to={`/pokemon/${encodeURIComponent(pokemon.name)}`}
-                  >
-                    {pokemon.name}
-                  </Link>
-                  <strong
-                    className="stat-total"
-                    aria-label={`סכום סטאטים בסיסיים: ${pokemon.baseStatTotal}`}
-                  >
-                    {pokemon.baseStatTotal}
-                  </strong>
-                  <button
-                    className="favorite-button"
-                    type="button"
-                    aria-pressed={isFavorite(pokemon.id)}
-                    aria-label={`${isFavorite(pokemon.id) ? 'הסרת' : 'הוספת'} ${pokemon.name} ${isFavorite(pokemon.id) ? 'מהמועדפים' : 'למועדפים'}`}
-                    onClick={() => toggleFavorite(pokemon)}
-                  >
-                    {isFavorite(pokemon.id) ? '♥' : '♡'}
-                  </button>
+                  <article className="pokemon-card">
+                    <Link
+                      className="pokemon-card-link"
+                      to={`/pokemon/${encodeURIComponent(pokemon.name)}`}
+                    >
+                      <img
+                        src={pokemon.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        width="120"
+                        height="120"
+                      />
+                      <span className="pokemon-card-name">{pokemon.name}</span>
+                    </Link>
+                    <div className="pokemon-card-footer">
+                      <strong
+                        className="stat-total"
+                        aria-label={`סכום סטאטים בסיסיים: ${pokemon.baseStatTotal}`}
+                      >
+                        {pokemon.baseStatTotal}
+                      </strong>
+                      <button
+                        className="favorite-button"
+                        type="button"
+                        aria-pressed={isFavorite(pokemon.id)}
+                        aria-label={`${isFavorite(pokemon.id) ? 'הסרת' : 'הוספת'} ${pokemon.name} ${isFavorite(pokemon.id) ? 'מהמועדפים' : 'למועדפים'}`}
+                        onClick={() => toggleFavorite(pokemon)}
+                      >
+                        {isFavorite(pokemon.id) ? '♥' : '♡'}
+                      </button>
+                    </div>
+                  </article>
                 </li>
               ))}
             </ul>
+          ) : state.pokemon.length > 0 ? (
+            <p className="empty-message">לא נמצאו פוקימונים התואמים לחיפוש.</p>
           ) : (
             <p className="empty-message">לא נמצאו פוקימונים להצגה.</p>
           )}
