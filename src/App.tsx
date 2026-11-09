@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
 import { useFavorites } from './useFavorites'
+import ComparisonPage from './ComparisonPage'
 import FavoritesPage from './FavoritesPage'
 import PokemonDetailPage from './PokemonDetailPage'
 import './App.css'
@@ -173,6 +174,7 @@ function App() {
       <nav className="site-navigation" dir="rtl" aria-label="ניווט ראשי">
         <Link to="/">רשימת הפוקימונים</Link>
         <Link to="/favorites">מועדפים ({pokemon.length})</Link>
+        <Link to="/compare">השוואה</Link>
       </nav>
       {storageError && (
         <p className="storage-error" role="alert">
@@ -183,6 +185,7 @@ function App() {
         <Route path="/" element={<PokemonListPage />} />
         <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/compare" element={<ComparisonPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
