@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
+import { useFavorites } from './useFavorites'
+import FavoritesPage from './FavoritesPage'
 import PokemonDetailPage from './PokemonDetailPage'
 import './App.css'
 
@@ -12,6 +14,7 @@ type PokemonListState =
 function PokemonListPage() {
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<PokemonListState>({ status: 'loading' })
+  const { isFavorite, toggleFavorite } = useFavorites()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -93,6 +96,15 @@ function PokemonListPage() {
                   >
                     {pokemon.baseStatTotal}
                   </strong>
+                  <button
+                    className="favorite-button"
+                    type="button"
+                    aria-pressed={isFavorite(pokemon.id)}
+                    aria-label={`${isFavorite(pokemon.id) ? 'הסרת' : 'הוספת'} ${pokemon.name} ${isFavorite(pokemon.id) ? 'מהמועדפים' : 'למועדפים'}`}
+                    onClick={() => toggleFavorite(pokemon)}
+                  >
+                    {isFavorite(pokemon.id) ? '♥' : '♡'}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -119,12 +131,26 @@ function NotFoundPage() {
 }
 
 function App() {
+  const { pokemon, storageError } = useFavorites()
+
   return (
-    <Routes>
-      <Route path="/" element={<PokemonListPage />} />
-      <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <>
+      <nav className="site-navigation" dir="rtl" aria-label="ניווט ראשי">
+        <Link to="/">רשימת הפוקימונים</Link>
+        <Link to="/favorites">מועדפים ({pokemon.length})</Link>
+      </nav>
+      {storageError && (
+        <p className="storage-error" role="alert">
+          {storageError}
+        </p>
+      )}
+      <Routes>
+        <Route path="/" element={<PokemonListPage />} />
+        <Route path="/pokemon/:name" element={<PokemonDetailPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   )
 }
 

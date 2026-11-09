@@ -46,6 +46,10 @@
   text-transform: capitalize;
 }
 
+.detail-favorite-button {
+  margin-top: 0.8rem;
+}
+
 .type-list {
   margin: 0.5rem 0 0;
   color: #68645f;

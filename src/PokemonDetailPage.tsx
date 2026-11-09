@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useFavorites } from './useFavorites'
 import {
   fetchPokemonDetails,
   fetchPokemonMoveDetails,
   type PokemonDetails,
+  type PokemonListItem,
   type PokemonMoveDetails,
 } from './services/pokeApi'
 import './PokemonDetailPage.css'
@@ -71,6 +73,7 @@ async function fetchStrongestMoves(
 function PokemonDetailPage() {
   const { name } = useParams<{ name: string }>()
   const [state, setState] = useState<PokemonDetailState>({ status: 'loading' })
+  const { isFavorite, toggleFavorite } = useFavorites()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -110,6 +113,19 @@ function PokemonDetailPage() {
     return () => controller.abort()
   }, [name])
 
+  const favoritePokemon: PokemonListItem | null =
+    state.status === 'success'
+      ? {
+          id: state.pokemon.id,
+          name: state.pokemon.name,
+          imageUrl: state.pokemon.imageUrl,
+          baseStatTotal: state.pokemon.stats.reduce(
+            (total, stat) => total + stat.baseStat,
+            0,
+          ),
+        }
+      : null
+
   return (
     <main className="app-shell detail-page" dir="rtl">
       <Link className="back-link" to="/">
@@ -144,6 +160,18 @@ function PokemonDetailPage() {
               <p className="type-list">
                 {state.pokemon.types.map(formatName).join(' · ')}
               </p>
+              {favoritePokemon && (
+                <button
+                  className="favorite-button detail-favorite-button"
+                  type="button"
+                  aria-pressed={isFavorite(state.pokemon.id)}
+                  onClick={() => toggleFavorite(favoritePokemon)}
+                >
+                  {isFavorite(state.pokemon.id)
+                    ? 'הסרה מהמועדפים'
+                    : 'הוספה למועדפים'}
+                </button>
+              )}
             </div>
           </header>
 
