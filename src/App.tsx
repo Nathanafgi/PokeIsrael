@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
 import { useFavorites } from './useFavorites'
+import { filterPokemonByName } from './utils/pokemon'
 import ComparisonPage from './ComparisonPage'
 import FavoritesPage from './FavoritesPage'
 import PokemonDetailPage from './PokemonDetailPage'
@@ -48,11 +49,7 @@ function PokemonListPage() {
 
   const visiblePokemon =
     state.status === 'success'
-      ? state.pokemon.filter((pokemon) =>
-          pokemon.name
-            .toLocaleLowerCase()
-            .includes(searchQuery.trim().toLocaleLowerCase()),
-        )
+      ? filterPokemonByName(state.pokemon, searchQuery)
       : []
 
   return (
