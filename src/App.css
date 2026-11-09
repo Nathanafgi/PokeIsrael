@@ -84,6 +84,12 @@
   font-size: 0.9rem;
 }
 
+.error-message {
+  margin: 0.75rem 0 0;
+  color: #8d2f22;
+  font-size: 0.9rem;
+}
+
 .spinner {
   width: 2rem;
   height: 2rem;

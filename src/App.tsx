@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Route, Routes, useNavigate } from 'react-router-dom'
 import { fetchTopPokemon, type PokemonListItem } from './services/pokeApi'
 import { useFavorites } from './useFavorites'
+import { usePokemonCatalog } from './usePokemonCatalog'
 import { filterPokemonByName } from './utils/pokemon'
 import ComparisonPage from './ComparisonPage'
 import FavoritesPage from './FavoritesPage'
@@ -18,6 +19,8 @@ function PokemonListPage() {
   const [state, setState] = useState<PokemonListState>({ status: 'loading' })
   const [searchQuery, setSearchQuery] = useState('')
   const { isFavorite, toggleFavorite } = useFavorites()
+  const catalog = usePokemonCatalog()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -51,6 +54,28 @@ function PokemonListPage() {
     state.status === 'success'
       ? filterPokemonByName(state.pokemon, searchQuery)
       : []
+  const catalogSuggestions =
+    catalog.status === 'success' && searchQuery.trim()
+      ? filterPokemonByName(catalog.pokemon, searchQuery).slice(0, 20)
+      : []
+
+  function handleSearchChange(query: string) {
+    setSearchQuery(query)
+
+    if (catalog.status !== 'success') {
+      return
+    }
+
+    const selectedPokemon = catalog.pokemon.find(
+      (pokemon) =>
+        pokemon.name.toLocaleLowerCase() ===
+        query.trim().toLocaleLowerCase(),
+    )
+
+    if (selectedPokemon) {
+      navigate(`/pokemon/${encodeURIComponent(selectedPokemon.name)}`)
+    }
+  }
 
   return (
     <main className="app-shell" dir="rtl">
@@ -96,10 +121,29 @@ function PokemonListPage() {
               id="pokemon-search"
               type="search"
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => handleSearchChange(event.target.value)}
               placeholder="לדוגמה, pikachu"
+              list="pokemon-name-suggestions"
             />
           </label>
+          {catalog.status === 'loading' && (
+            <p className="loading-note" aria-live="polite">
+              טוען שמות להשלמה אוטומטית...
+            </p>
+          )}
+          {catalog.status === 'error' && (
+            <p className="error-message" role="alert">
+              לא ניתן לטעון את שמות הפוקימונים להשלמה אוטומטית:{' '}
+              {catalog.message}
+            </p>
+          )}
+          {catalog.status === 'success' && (
+            <datalist id="pokemon-name-suggestions">
+              {catalogSuggestions.map((pokemon) => (
+                <option key={pokemon.name} value={pokemon.name} />
+              ))}
+            </datalist>
+          )}
           {visiblePokemon.length > 0 ? (
             <ul className="pokemon-list">
               {visiblePokemon.map((pokemon) => (

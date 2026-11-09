@@ -1,9 +1,7 @@
-import type { PokemonListItem } from '../services/pokeApi'
-
-export function filterPokemonByName(
-  pokemon: readonly PokemonListItem[],
+export function filterPokemonByName<T extends { name: string }>(
+  pokemon: readonly T[],
   query: string,
-): PokemonListItem[] {
+): T[] {
   const normalizedQuery = query.trim().toLocaleLowerCase()
 
   if (!normalizedQuery) {

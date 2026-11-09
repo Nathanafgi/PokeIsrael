@@ -1,4 +1,5 @@
 const POKEMON_LIST_URL = 'https://pokeapi.co/api/v2/pokemon?limit=100000'
+const POKEMON_CATALOG_URL = 'https://pokeapi.co/api/v2/pokemon?limit=2000'
 const EVOLUTION_CHAIN_LIST_URL =
   'https://pokeapi.co/api/v2/evolution-chain?limit=10000'
 const OFFICIAL_ARTWORK_URL =
@@ -8,10 +9,12 @@ const CACHE_DURATION_MS = 24 * 60 * 60 * 1000
 const REQUEST_CONCURRENCY = 8
 const TOP_POKEMON_COUNT = 50
 
-interface ApiResource {
+export interface PokemonResource {
   name: string
   url: string
 }
+
+type ApiResource = PokemonResource
 
 interface ApiListResponse<T> {
   count: number
@@ -68,6 +71,8 @@ export interface PokemonListItem {
   imageUrl: string
   baseStatTotal: number
 }
+
+export type PokemonCatalogItem = PokemonResource
 
 export interface PokemonDetails {
   id: number
@@ -304,6 +309,24 @@ async function fetchApiData<T>(
   }
 
   return payload
+}
+
+export async function fetchPokemonCatalog(
+  signal: AbortSignal,
+): Promise<PokemonCatalogItem[]> {
+  const response = await fetchApiData(
+    POKEMON_CATALOG_URL,
+    isPokemonListResponse,
+    signal,
+  )
+
+  if (response.next !== null || response.results.length < response.count) {
+    throw new Error(
+      'לא ניתן לטעון את רשימת כל הפוקימונים. נסו שוב מאוחר יותר.',
+    )
+  }
+
+  return response.results
 }
 
 async function mapWithConcurrency<T, R>(

@@ -41,6 +41,15 @@ describe('filterPokemonByName', () => {
   it('returns an empty list when no names match', () => {
     expect(filterPokemonByName(pokemon, 'mewtwo')).toEqual([])
   })
+
+  it('filters lightweight name and URL catalog entries', () => {
+    const catalog = [
+      { name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/' },
+      { name: 'charizard', url: 'https://pokeapi.co/api/v2/pokemon/6/' },
+    ]
+
+    expect(filterPokemonByName(catalog, 'char')).toEqual([catalog[1]])
+  })
 })
 
 describe('rankPokemonByBaseStats', () => {

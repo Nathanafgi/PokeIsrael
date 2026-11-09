@@ -146,3 +146,21 @@
 **18:33 · copilot**
 
 > יש אישור להמשיך בהתקדמות במשימות
+
+**18:53 · copilot**
+
+> אני רוצה לשדרג את פונקציית החיפוש ואת עמוד ההשוואה כך שיוכלו למצוא ולבחור מתוך **כל הפוקימונים הקיימים ב-PokeAPI**, ולא רק מתוך ה-50 שנמצאים כרגע ב-state.
+> חשוב מאוד: העמוד הראשי חייב להישאר בדיוק כפי שהוא (מציג רק את טבלת 50 החזקים).
+> כדי לממש זאת ביעילות: אנא שלוף את הרשימה המלאה הקלה (רק שמות ו-URL) של כל הפוקימונים (למשל עם `limit=2000`) כדי להזין את ההשלמה האוטומטית (Autocomplete) בחיפוש ואת אפשרויות הבחירה בעמוד ההשוואה. רק כאשר משתמש בוחר פוקימון ספציפי, בצע קריאה לשלוף את הנתונים המלאים שלו.
+> לפני שאתה מתחיל לכתוב או לשנות קוד, אנא הצג לי תוכנית פעולה קצרה והמתן לאישור שלי, בהתאם לכללים ב-AGENTS.md.
+
+**18:53 · copilot**
+
+> You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+> 
+> IMPORTANT: Do NOT call task_complete if:
+> - You have open questions or ambiguities - make good decisions and keep working
+> - You encountered an error - try to resolve it or find an alternative approach
+> - There are remaining steps - complete them first
+> 
+> Keep working autonomously until the task is truly finished, then call task_complete.

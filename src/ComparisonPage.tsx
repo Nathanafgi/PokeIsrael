@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react'
 import {
   fetchPokemonDetails,
-  fetchTopPokemon,
   type PokemonDetails,
-  type PokemonListItem,
 } from './services/pokeApi'
+import { usePokemonCatalog } from './usePokemonCatalog'
 import './ComparisonPage.css'
-
-type PokemonListState =
-  | { status: 'loading' }
-  | { status: 'error'; message: string }
-  | { status: 'success'; pokemon: PokemonListItem[] }
 
 type ComparisonState =
   | { status: 'idle' }
@@ -56,7 +50,7 @@ function getStatValue(pokemon: PokemonDetails, statName: string): number {
 }
 
 function ComparisonPage() {
-  const [roster, setRoster] = useState<PokemonListState>({ status: 'loading' })
+  const catalog = usePokemonCatalog()
   const [firstId, setFirstId] = useState('')
   const [secondId, setSecondId] = useState('')
   const [comparison, setComparison] = useState<ComparisonState>({
@@ -64,37 +58,16 @@ function ComparisonPage() {
   })
 
   useEffect(() => {
-    const controller = new AbortController()
-
-    async function loadRoster() {
-      try {
-        const pokemon = await fetchTopPokemon(controller.signal)
-        setRoster({ status: 'success', pokemon })
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return
-        }
-
-        setRoster({
-          status: 'error',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'אירעה שגיאה לא צפויה בעת טעינת הפוקימונים.',
-        })
-      }
-    }
-
-    void loadRoster()
-    return () => controller.abort()
-  }, [])
-
-  useEffect(() => {
-    if (!firstId || !secondId) {
+    if (
+      !firstId ||
+      !secondId ||
+      catalog.status !== 'success'
+    ) {
       return
     }
 
     const controller = new AbortController()
+    const availablePokemon = catalog.pokemon
 
     async function loadComparison() {
       setComparison({ status: 'loading', firstId, secondId })
@@ -104,14 +77,12 @@ function ComparisonPage() {
           throw new Error('יש לבחור שני פוקימונים שונים להשוואה.')
         }
 
-        const firstPokemon =
-          roster.status === 'success'
-            ? roster.pokemon.find((pokemon) => String(pokemon.id) === firstId)
-            : undefined
-        const secondPokemon =
-          roster.status === 'success'
-            ? roster.pokemon.find((pokemon) => String(pokemon.id) === secondId)
-            : undefined
+        const firstPokemon = availablePokemon.find(
+          (pokemon) => pokemon.name === firstId,
+        )
+        const secondPokemon = availablePokemon.find(
+          (pokemon) => pokemon.name === secondId,
+        )
 
         if (!firstPokemon || !secondPokemon) {
           throw new Error('לא נמצאו פרטי שני הפוקימונים שנבחרו.')
@@ -148,7 +119,7 @@ function ComparisonPage() {
 
     void loadComparison()
     return () => controller.abort()
-  }, [firstId, secondId, roster])
+  }, [firstId, secondId, catalog])
 
   const activeComparison =
     comparison.status !== 'idle' &&
@@ -163,21 +134,21 @@ function ComparisonPage() {
         <p className="intro">בחרו שני פוקימונים והשוו בין הסטטיסטיקות הבסיסיות שלהם.</p>
       </header>
 
-      {roster.status === 'loading' && (
+      {catalog.status === 'loading' && (
         <section className="state-panel" aria-live="polite">
           <span className="spinner" aria-hidden="true" />
           <p>טוען את רשימת הפוקימונים להשוואה...</p>
         </section>
       )}
 
-      {roster.status === 'error' && (
+      {catalog.status === 'error' && (
         <section className="state-panel error-panel" role="alert">
           <h2>לא הצלחנו לטעון את הפוקימונים</h2>
-          <p>{roster.message}</p>
+          <p>{catalog.message}</p>
         </section>
       )}
 
-      {roster.status === 'success' && (
+      {catalog.status === 'success' && (
         <>
           <section className="comparison-selectors" aria-label="בחירת פוקימונים">
             <label>
@@ -187,10 +158,10 @@ function ComparisonPage() {
                 onChange={(event) => setFirstId(event.target.value)}
               >
                 <option value="">בחירת פוקימון</option>
-                {roster.pokemon
-                  .filter((pokemon) => String(pokemon.id) !== secondId)
+                {catalog.pokemon
+                  .filter((pokemon) => pokemon.name !== secondId)
                   .map((pokemon) => (
-                    <option key={pokemon.id} value={pokemon.id}>
+                    <option key={pokemon.name} value={pokemon.name}>
                       {formatName(pokemon.name)}
                     </option>
                   ))}
@@ -203,10 +174,10 @@ function ComparisonPage() {
                 onChange={(event) => setSecondId(event.target.value)}
               >
                 <option value="">בחירת פוקימון</option>
-                {roster.pokemon
-                  .filter((pokemon) => String(pokemon.id) !== firstId)
+                {catalog.pokemon
+                  .filter((pokemon) => pokemon.name !== firstId)
                   .map((pokemon) => (
-                    <option key={pokemon.id} value={pokemon.id}>
+                    <option key={pokemon.name} value={pokemon.name}>
                       {formatName(pokemon.name)}
                     </option>
                   ))}
