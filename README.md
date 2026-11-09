@@ -1,75 +1,38 @@
-# React + TypeScript + Vite
+# PokeIsrael
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+אפליקציית Pokédex מבוססת React, TypeScript ו-Vite. היא מציגה את הפוקימונים המובילים לפי סכום הסטאטים, ומאפשרת לצפות בפרטים, לנהל מועדפים ולהשוות בין פוקימונים.
 
-Currently, two official plugins are available:
+## יכולות
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **עמוד ראשי (`/`)** — 50 הפוקימונים בעלי סכום הסטאטים הגבוה ביותר, לפי הצורה הסופית בכל ענף התפתחות וצורת המגה החזקה ביותר כשיש כזו. כרטיסי הפוקימונים כוללים תמונה, סכום סטאטים וכפתור מועדפים.
+- **חיפוש והשלמה אוטומטית** — מסנן את 50 התוצאות ומציע שמות מכל קטלוג הפוקימונים של PokeAPI. בחירת פוקימון מנווטת לעמוד הפרטים שלו.
+- **עמוד פרטים (`/pokemon/:name`)** — מציג תמונה, סוגים, יכולות, גובה, משקל וסטטיסטיקות, וכן את ארבע המתקפות בעלות ה-Power המספרי הגבוה ביותר.
+- **מועדפים (`/favorites`)** — הוספה והסרה של פוקימונים; הבחירות נשמרות ב-`localStorage`.
+- **השוואה (`/compare`)** — בחירת שני פוקימונים מכל הקטלוג, הצגת הסטטיסטיקות שלהם זו לצד זו וסיכום לגבי מהירות, Attack, Special Attack ו-HP.
 
-## React Compiler
+הנתונים נטענים מ-[PokeAPI](https://pokeapi.co/). הקטלוג הקל כולל שמות וכתובות URL; פרטים מלאים נטענים לפי בחירת המשתמש. טעינה, שגיאות ותוצאות ריקות מוצגות בממשק.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## דרישות מקדימות
 
-## Expanding the ESLint configuration
+- Node.js ו-npm
+- חיבור לאינטרנט עבור בקשות ל-PokeAPI
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## התקנה והרצה
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Vite יציג את כתובת הפיתוח בטרמינל.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## בדיקות וייצור
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npm test
+npm run lint
+npm run build
+npm run preview
 ```
+
+בדיקות היחידה מכסות את מיון הפוקימונים, חיפוש לפי שם ושליפת הקטלוג.

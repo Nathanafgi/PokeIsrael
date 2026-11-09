@@ -164,3 +164,22 @@
 > - There are remaining steps - complete them first
 > 
 > Keep working autonomously until the task is truly finished, then call task_complete.
+
+**19:18 · copilot**
+
+> אוקי עכשיו לחזור ולהתקדם בTASKS. מה המשימה הבאה שלנו?
+
+**19:18 · copilot**
+
+> You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+> 
+> IMPORTANT: Do NOT call task_complete if:
+> - You have open questions or ambiguities - make good decisions and keep working
+> - You encountered an error - try to resolve it or find an alternative approach
+> - There are remaining steps - complete them first
+> 
+> Keep working autonomously until the task is truly finished, then call task_complete.
+
+**19:19 · copilot**
+
+> אוקי בוא נמשיך
